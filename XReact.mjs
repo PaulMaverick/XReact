@@ -1,3 +1,5 @@
+import './polyfill.mjs';
+
 let nextUnitOfWork = null;
 let wipRoot = null;
 let currentRoot = null;
@@ -260,7 +262,7 @@ function reconcileChildren(wipFiber, elements) {
 }
 
 function useState() {
-    
+
 }
 
 const XReact = {
