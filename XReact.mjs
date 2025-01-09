@@ -1,4 +1,4 @@
-import './polyfill.mjs';
+// import './polyfill.mjs';
 
 let nextUnitOfWork = null;
 let wipRoot = null;
@@ -234,7 +234,7 @@ function reconcileChildren(wipFiber, elements) {
         if(element && !sameType) {
             newFiber = {
                 type: element.type,
-                props: element.type,
+                props: element.props,
                 dom: null,
                 parent: wipFiber,
                 alternate: null,
