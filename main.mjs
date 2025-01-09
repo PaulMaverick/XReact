@@ -1,21 +1,26 @@
 import XReact from './XReact.mjs';
 
 /** @jsx XReact.createElement */
-function App(props) {
-    return <h1>Hi {props.name}</h1>
-}
-
-// function Counter() {
-//     const [state, setState] = XReact.useState(1);
-
+// function App(props) {
 //     return (
-//         <h1 onClick={() => setState(c => c + 1)}>
-//             count: {state}
-//         </h1>
+//         <div>
+//             <h1>Hi {props.name}</h1>
+//             <Counter />
+//         </div>
 //     )
 // }
 
-const element = <App name="foo" />
+function Counter() {
+    const [state, setState] = XReact.useState(1);
+
+    return (
+        <h1 onClick={() => setState(c => c + 1)}>
+            count: {state}
+        </h1>
+    )
+}
+
+const element = <Counter />
 
 // const element = XReact.createElement(
 //     "div",

@@ -1,9 +1,12 @@
 // import './polyfill.mjs';
 
+
 let nextUnitOfWork = null;
 let wipRoot = null;
 let currentRoot = null;
 let deletions = null;
+let wipFiber = null;
+let hookIndex = null;
 
 function createElement (type, props, ...children) {
     return {
@@ -35,14 +38,8 @@ function createDom(fiber) {
         ? document.createTextNode("")
         : document.createElement(fiber.type);
 
-    const isProperty = key => key !== "children"
-    Object.keys(fiber.props)
-        .filter(isProperty)
-        .forEach(name => {
-            
-            dom[name] = fiber.props[name]
-        })
-    console.log("Created Dom: ", dom)
+    updateDom(dom, {}, fiber.props);
+
     return dom;
 }
 
@@ -72,6 +69,7 @@ const isGone = (prev, next) => key => !(key in next);
 
 function updateDom(dom, prevProps, nextProps) {
     //remove old or changes to on event handlers
+    
     Object.keys(prevProps)
         .filter(isEvent)
         .filter(key => !(key in nextProps) || isNew(prevProps, nextProps)(key))
@@ -190,8 +188,11 @@ function performUnitOfWork(fiber) {
 }
 
 function updateFunctionComponent(fiber) {
+    wipFiber = fiber;
+    hookIndex = 0;
+    wipFiber.hooks = []
+
     const children = [fiber.type(fiber.props)];
-    console.log(fiber, "functioncomponent")
     reconcileChildren(fiber, children);
 }
 
@@ -261,8 +262,38 @@ function reconcileChildren(wipFiber, elements) {
     }
 }
 
-function useState() {
+function useState(initial) {
+    const oldHook =  
+        wipFiber.alternate && 
+        wipFiber.alternate.hooks &&
+        wipFiber.alternate.hooks[hookIndex];
+    const hook = {
+        state: oldHook ? oldHook.state : initial,
+        queue: [],
+    };
 
+    const actions = oldHook ? oldHook.queue : [];
+
+    actions.forEach(action => {
+        hook.state = action(hook.state)
+    })
+
+    const setState = action => {
+        
+        hook.queue.push(action);
+        wipRoot = {
+            dom: currentRoot.dom,
+            props: currentRoot.props,
+            alternate: currentRoot,
+        }
+        console.log(wipRoot)
+        nextUnitOfWork = wipRoot;   
+        deletions = [];
+    }
+
+    wipFiber.hooks.push(hook);
+    hookIndex++
+    return [hook.state, setState]
 }
 
 const XReact = {
